@@ -1,7 +1,0 @@
-"ResourceGroupName","Location","ProvisioningState","Tags","TagsTable","ResourceId","ManagedBy","Subscription","SubscriptionId"
-"Prod-RG","usgovvirginia","Succeeded","System.Collections.Hashtable","
-Name   Value     
-=====  ==========
-MyTag  MyTagValue
-","/subscriptions/ed347077-d367-4401-af11-a87b73bbae0e/resourceGroups/Prod-RG",,"Azure Government Internal","ed347077-d367-4401-af11-a87b73bbae0e"
-"F5-RG","usgovvirginia","Succeeded",,,"/subscriptions/ed347077-d367-4401-af11-a87b73bbae0e/resourceGroups/F5-RG",,"Azure Government Internal","ed347077-d367-4401-af11-a87b73bbae0e"
