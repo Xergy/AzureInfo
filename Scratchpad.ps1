@@ -80,3 +80,12 @@ Move-Item "$($mdStr).zip" "$($mdStr)"
 
 get-item C:\temp\2019-08\2019-08-13T13.03_AzureInfo.zip
 2019-08-13T13.03_AzureInfo.zip
+
+
+$_.SourceVirtualMachine.id | Split-Path -Leaf
+
+$MyPath = "\bob\myleaf"
+
+$MyPath = $null
+
+If ($MyPath) { $MyPath  | Split-Path -Leaf}
