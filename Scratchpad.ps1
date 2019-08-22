@@ -89,3 +89,53 @@ $MyPath = "\bob\myleaf"
 $MyPath = $null
 
 If ($MyPath) { $MyPath  | Split-Path -Leaf}
+
+
+
+
+#region Export, Open CSVs in LocalPath
+
+$NowStr = Get-Date -Format yyyy-MM-ddTHH.mm
+$RootFolderStr = Get-Date -Format yyyy-MM
+$ReportFolderStr = "$($NowStr)_AzureInfo"
+$mdStr = "$($LocalPath)\$($RootFolderStr)\$($ReportFolderStr)"
+
+Write-Verbose "$(Get-Date -Format yyyy-MM-ddTHH.mm.fff) Saving Data to $mdStr"
+
+md $mdStr | Out-Null
+ 
+$FilteredRGs | Export-Csv -Path "$($mdStr)\RGs.csv" -NoTypeInformation 
+$VMs | Export-Csv -Path "$($mdStr)\VMs.csv" -NoTypeInformation 
+$Tags | Export-Csv -Path "$($mdStr)\Tags.csv" -NoTypeInformation 
+$StorageAccounts | Export-Csv -Path "$($mdStr)\StorageAccounts.csv" -NoTypeInformation
+$Disks | Export-Csv -Path "$($mdStr)\Disks.csv" -NoTypeInformation
+$Vnets | Export-Csv -Path "$($mdStr)\Vnets.csv" -NoTypeInformation
+$Subnets | Export-Csv -Path "$($mdStr)\Subnets.csv" -NoTypeInformation
+$NetworkInterfaces | Export-Csv -Path "$($mdStr)\NetworkInterfaces.csv" -NoTypeInformation
+$NSGs  | Export-Csv -Path "$($mdStr)\NSGs.csv" -NoTypeInformation
+$AutoAccounts | Export-Csv -Path "$($mdStr)\AutoAccounts.csv" -NoTypeInformation
+$LogAnalystics | Export-Csv -Path "$($mdStr)\LogAnalystics.csv" -NoTypeInformation
+$KeyVaults | Export-Csv -Path "$($mdStr)\KeyVaults.csv" -NoTypeInformation
+$RecoveryServicesVaults | Export-Csv -Path "$($mdStr)\RecoveryServicesVaults.csv" -NoTypeInformation
+$BackupItemSummary  | Export-Csv -Path "$($mdStr)\BackupItemSummary.csv" -NoTypeInformation
+#$AVSets | Export-Csv -Path "$($mdStr)\AVSets.csv" -NoTypeInformation
+#$TagsAVSetAll | Export-Csv -Path "$($mdStr)\TagsAVSet.csv" -NoTypeInformation 
+#$AVSetSizes | Export-Csv -Path "$($mdStr)\AVSetSizes.csv" -NoTypeInformation
+$VMSizes | Export-Csv -Path "$($mdStr)\VMSizes.csv" -NoTypeInformation
+$VMImages | Export-Csv -Path "$($mdStr)\VMImages.csv" -NoTypeInformation
+
+# Save the report out to a file in the current path
+$HTMLmessage | Out-File -Force ("$($mdStr)\RGInfo.html")
+# Email our report out
+# send-mailmessage -from $fromemail -to $users -subject "Systems Report" -Attachments $ListOfAttachments -BodyAsHTML -body $HTMLmessage -priority Normal -smtpServer $server
+
+#endregion
+
+#region Zip Results
+Write-Verbose "$(Get-Date -Format yyyy-MM-ddTHH.mm.fff) Creating Archive ""$($mdStr).zip"""
+Add-Type -assembly "system.io.compression.filesystem"
+
+[io.compression.zipfile]::CreateFromDirectory($mdStr, "$($mdStr).zip") | Out-Null
+Move-Item "$($mdStr).zip" "$($mdStr)"
+
+#endregion

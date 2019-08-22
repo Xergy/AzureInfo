@@ -11,6 +11,10 @@
         It writes temp data to a folder of your choice i.e. C:\temp. It also zips up the final results.
 #>
 
+Write-Output "$(Get-Date -Format yyyy-MM-ddTHH.mm.fff) Starting..."
+
+$VerbosePreference = "Continue"
+
 $ScriptDir = [System.IO.Path]::GetDirectoryName($myInvocation.MyCommand.Definition) 
 Set-Location $ScriptDir
 
@@ -22,28 +26,24 @@ Import-Module .\Modules\AzureInfo
 if ($Null -eq (Get-AzContext).Account) {
 Connect-AzAccount -Environment AzureUSGovernment | Out-Null}
 
-# Clear Out any old variables
-$Subs = $Null
-$RGs = $Null
-
 #region Build Config File
-#$subs = Get-AzSubscription | Out-GridView -OutputMode Multiple -Title "Select Subscriptions"
-$subs = Get-AzSubscription | where-object {$_.Name -eq "Azure Government Internal"}
+#$Subs = Get-AzSubscription | Out-GridView -OutputMode Multiple -Title "Select Subscriptions"
+$Subs = Get-AzSubscription | where-object {$_.Name -eq "Azure Government Internal"}
 $RGs = @()
 
-foreach ( $sub in $subs )
+foreach ( $Sub in $Subs )
 {
 
-    Set-AzContext -SubscriptionId $sub.SubscriptionId
+    Set-AzContext -SubscriptionId $Sub.SubscriptionId | Out-Null
     
     $SubRGs = Get-AzResourceGroup |  
         Select-Object *,
             @{N='Subscription';E={
-                    $sub.Name
+                    $Sub.Name
                 }
             },
             @{N='SubscriptionId';E={
-                    $sub.Id
+                    $Sub.Id
                 }
             } |        
         Where-Object {$_.ResourceGroupName -eq "F5-RG"}
@@ -59,5 +59,36 @@ foreach ( $sub in $subs )
 
 #endregion
 
-Get-AzureInfo -Subscription $Subs -ResourceGroup $RGs -LocalPath "C:\temp" -StorageAccountRG "Prod-RG" -StorageAccountName "diagsa" -StorageAccountContainer "azureinfo"
+Write-Output "$(Get-Date -Format yyyy-MM-ddTHH.mm.fff) Running Get-AzureInfo..."
 
+$Params = @{
+    Subscription = $Subs
+    ResourceGroup = $RGs
+}
+
+$AzureInfoResults = Get-AzureInfo @Params
+
+Write-Output "$(Get-Date -Format yyyy-MM-ddTHH.mm.fff) Running Export-AzureInfo..."
+
+$Params = @{
+    AzureInfoResults = $AzureInfoResults
+    LocalPath = "C:\Temp"    
+}
+
+Export-AzureInfo @Params
+
+Write-Output "$(Get-Date -Format yyyy-MM-ddTHH.mm.fff) Running Export-AzureInfoToBlobStorage..."
+
+$Params = @{
+    AzureInfoResults = $AzureInfoResults
+    LocalPath = "C:\Temp"
+    StorageAccountSubID = (Get-AzSubscription -SubscriptionName "Azure Government Internal").Id
+    StorageAccountRG = "Prod-RG"        
+    StorageAccountName =  "diagsa"       
+    StorageAccountContainer = "azureinfo"
+}
+
+Export-AzureInfoToBlobStorage @Params 
+
+Write-Output "$(Get-Date -Format yyyy-MM-ddTHH.mm.fff) Done!"
+        
