@@ -139,3 +139,8 @@ Add-Type -assembly "system.io.compression.filesystem"
 Move-Item "$($mdStr).zip" "$($mdStr)"
 
 #endregion
+
+
+(get-azresourcegroup)[0].ResourceId.tostring().split('/')[2]
+
+$SubsAll[1]
