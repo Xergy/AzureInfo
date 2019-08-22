@@ -46,7 +46,7 @@ foreach ( $Sub in $Subs )
                     $Sub.Id
                 }
             } |        
-        Where-Object {$_.ResourceGroupName -eq "F5-RG"}
+        Where-Object {$_.ResourceGroupName -eq "PROD-RG" -or $_.ResourceGroupName -eq "F5-RG"}
             #Out-GridView -OutputMode Multiple -Title "Select Resource Groups"
 
     foreach ( $SubRG in $SubRGs )
@@ -64,6 +64,7 @@ Write-Output "$(Get-Date -Format yyyy-MM-ddTHH.mm.fff) Running Get-AzureInfo..."
 $Params = @{
     Subscription = $Subs
     ResourceGroup = $RGs
+    ConfigLabel = "All"
 }
 
 $AzureInfoResults = Get-AzureInfo @Params
@@ -91,4 +92,6 @@ $Params = @{
 Export-AzureInfoToBlobStorage @Params 
 
 Write-Output "$(Get-Date -Format yyyy-MM-ddTHH.mm.fff) Done!"
+
+
         
