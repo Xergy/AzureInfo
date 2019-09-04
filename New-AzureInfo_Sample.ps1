@@ -58,6 +58,22 @@ Switch ($ConfigLabel) {
         $Subs = $SubsAll | Where-Object {$_.Name -eq "Azure Government Internal"}
         $RGs = $RGsAll | Where-Object {$_.ResourceGroupName -eq "F5-RG"}
     }
+    Prod1EastACS {
+        $Subs = $SubsAll | Where-Object {$_.Name -eq "PROD-GOV-INTERNAL"}
+        $RGs = $RGsAll | Where-Object {$_.ResourceGroupName -eq "ACSPROD-PROD-INT-EAST-RG"}
+    }
+    Prod1MVI {
+        $Subs = $SubsAll | Where-Object {$_.Name -eq "PROD-GOV-INTERNAL"}
+        $RGs = $RGsAll | Where-Object {$_.ResourceGroupName -eq "MVIPROD-PROD-INT-EAST-RG"}
+    }
+    CrossSubACS {
+        $Subs = $SubsAll | Where-Object {$_.Name -eq "PROD-GOV-INTERNAL" -or $_.Name -eq "PREPROD-GOV-INTERNAL" }
+        $RGs = $RGsAll | Where-Object {$_.ResourceGroupName -eq "ACSPROD-PROD-INT-EAST-RG" -or $_.ResourceGroupName -eq "ACSPREPROD-PREPROD-INT-EAST-RG"  }
+    }
+    SQAVAAFI {
+        $Subs = $SubsAll | Where-Object {$_.Name -eq "PREPROD-GOV-INTERNAL" }
+        $RGs = $RGsAll | Where-Object {$_.ResourceGroupName -eq "VAAFISQA-PREPROD-INT-EAST-RG" }
+    }
 }
 
 Write-Output "$(Get-Date -Format yyyy-MM-ddTHH.mm.fff) Running Get-AzureInfo..."
@@ -84,9 +100,9 @@ Write-Output "$(Get-Date -Format yyyy-MM-ddTHH.mm.fff) Running Export-AzureInfoT
 $Params = @{
     AzureInfoResults = $AzureInfoResults
     LocalPath = "C:\Temp"
-    StorageAccountSubID = (Get-AzSubscription -SubscriptionName "Azure Government Internal").Id
-    StorageAccountRG = "Prod-RG"        
-    StorageAccountName =  "diagsa"       
+    StorageAccountSubID = (Get-AzSubscription -SubscriptionName "PROD-GOV-INTERNAL").Id
+    StorageAccountRG = "IAM-PROD-INT-EAST-AUTO100-RG"        
+    StorageAccountName =  "iam100eastautomationstg"       
     StorageAccountContainer = "azureinfo"
 }
 
@@ -113,9 +129,9 @@ $VMsAllTagsIPsFiltered | Export-Csv -Path $OutfilePath -NoTypeInformation -Force
 $Params = @{
     Files = (Get-Item $OutfilePath)
     TargetBlobFolderPath = "$($AzureInfoResults.ConfigLabel)\$($AzureInfoResults.RunTime.substring(0,7))"
-    StorageAccountSubID = (Get-AzSubscription -SubscriptionName "Azure Government Internal").Id
-    StorageAccountRG = "Prod-RG"        
-    StorageAccountName =  "diagsa"       
+    StorageAccountSubID = (Get-AzSubscription -SubscriptionName "PROD-GOV-INTERNAL").Id
+    StorageAccountRG = "IAM-PROD-INT-EAST-AUTO100-RG"        
+    StorageAccountName =  "iam100eastautomationstg"       
     StorageAccountContainer = "buildsheets"
 }
 
